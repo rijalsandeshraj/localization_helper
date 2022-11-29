@@ -33,9 +33,9 @@ String stringInCamelCase(String lowerCaseString) {
 }
 
 // Creates a JSON file in the working directory
-File returnFile() {
+File returnFile(String fileName) {
   Directory currentDirectory = getCurrentDirectory();
   final String path = currentDirectory.path;
-  final File file = File('$path/pubspec.yaml');
+  final File file = File('$path/$fileName');
   return file;
 }

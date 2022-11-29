@@ -18,7 +18,7 @@ void main() {
           .where((e) => e.path.endsWith('.dart'))
           .toList();
       if (contents.isNotEmpty) {
-        File outputFile = returnFile();
+        File outputFile = returnFile('test.json');
         outputFile.writeAsStringSync(
           '{\n',
           mode: FileMode.append,
