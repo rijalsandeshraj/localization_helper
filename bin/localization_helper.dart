@@ -1,79 +1,57 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:localization_helper/constants.dart';
 import 'package:localization_helper/utils.dart';
 
 void main(List<String> arguments) {
-  exitCode = 0; // presume success
+  exitCode = 0;
   final parser = ArgParser()
     ..addOption('init',
         abbr: 'i',
-        help: 'Initializes the program',
+        help:
+            'Initializes the program for localization with options as: basic or full',
         defaultsTo: 'basic',
         allowed: ['basic', 'full']);
-  ArgResults argResults = parser.parse(arguments);
-  final confirmations = argResults.rest;
-  if (argResults.wasParsed('init')) {}
-  print(argResults['init']);
-  print(argResults.arguments);
-
-  confirm(confirmations);
-}
-
-checkPubspecFile(File file) {
-  final String content = file.readAsStringSync();
-  RegExp firstExp = RegExp(
-      r'''dependencies:((.|\r|\n)*)flutter_localizations:''',
-      multiLine: true);
-  RegExp secondExp =
-      RegExp(r'''(flutter:((.|\r|\n)*)generate: true)''', multiLine: true);
-  String newContent = content;
-  File outputFile = returnFile('pubspec.yaml');
-  if (!content.contains(firstExp)) {
-    if (content.contains(RegExp(r'(?<!dev\_)dependencies:'))) {
-      newContent = content.replaceAll(
-        RegExp(r'(?<!dev\_)dependencies:'),
-        'dependencies:\n  flutter_localizations:\n    sdk: flutter',
-      );
-    } else {
-      newContent =
-          '$content\ndependencies:\n  flutter_localizations:\n    sdk: flutter';
+  try {
+    ArgResults argResults = parser.parse(arguments);
+    String initValue = argResults['init'];
+    String modeContent =
+        "🔰 You have chosen ${initValue.toUpperCase()} Localization Mode...\n"
+        "$modeAdditionalContent";
+    if (initValue == 'basic') {
+      print("$modeContent\n"
+          "$basicModeAdditionalContent");
+    } else if (initValue == 'full') {
+      print("$modeContent"
+          "$fullModeAdditionalContent");
     }
+    confirm(initValue);
+  } catch (e) {
+    print(e.toString());
+    print(
+        '❌ There was an error while parsing the arguments. Program terminated!');
+    print('${parser.usage}\n');
   }
-  String finalContent = newContent;
-  if (!newContent.contains(secondExp)) {
-    if (newContent.contains('\nflutter:')) {
-      print('if');
-      finalContent = newContent.replaceAll(
-        RegExp(r'flutter:'),
-        'flutter:\n  generate: true',
-      );
-    } else {
-      finalContent = '$finalContent\nflutter:\n  generate: true';
-    }
-  }
-  outputFile.writeAsStringSync(finalContent);
-  print('Flutter localization library has been imported...');
 }
 
-createLocalizationSettingsFile() {
-  File outputFile = returnFile('l10n.yaml');
-}
-
-Future<void> confirm(List<String> confirmations) async {
-  stdout.write('Initialize the program [y/n]: ');
+void confirm(String localizationMode) {
+  stdout.write(
+      '========================================\n❔ Initialize the program? [y/n]: ');
   String? confirmation = stdin.readLineSync();
   if (confirmation == 'y') {
     Directory currentDirectory = getCurrentDirectory();
     File file = File('${currentDirectory.path}/pubspec.yaml');
     if (file.existsSync()) {
-      print('Program is running...');
+      print('🔃 Program is running...');
+      print(
+          '🔃 Importing necessary localization library in \'pubspec.yaml\' file...');
       checkPubspecFile(file);
+      createLocalizationConfigFile();
     } else {
-      print('There is no \'pubspec.yaml\' file in this directory!');
+      print('❗ There is no \'pubspec.yaml\' file in this directory!\n');
     }
   } else {
-    print('Program is terminating!');
+    print('❌ Program terminated!\n');
   }
-  // await stdin.pipe(stdout);
 }
