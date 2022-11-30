@@ -6,18 +6,15 @@ import 'package:localization_helper/utils.dart';
 void main(List<String> arguments) {
   exitCode = 0; // presume success
   final parser = ArgParser()
-    ..addFlag('init-localization', negatable: false, abbr: 'l')
-    ..addOption('initializer',
+    ..addOption('init',
         abbr: 'i',
         help: 'Initializes the program',
         defaultsTo: 'basic',
         allowed: ['basic', 'full']);
-
   ArgResults argResults = parser.parse(arguments);
   final confirmations = argResults.rest;
-  if (argResults.wasParsed('initializer')) {
-    print(parser.usage);
-  }
+  if (argResults.wasParsed('init')) {}
+  print(argResults['init']);
   print(argResults.arguments);
 
   confirm(confirmations);
