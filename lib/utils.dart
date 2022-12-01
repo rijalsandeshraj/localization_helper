@@ -49,12 +49,13 @@ String getLocalizationConfig(String templateArbFileName) {
       "output-localization-file: l10n.dart\n"
       "output-class: S\n"
       "synthetic-package: false\n"
-      "nullable-getter: false\n";
+      "nullable-getter: false\n"
+      "untranslated-messages-file: l10n_errors.txt\n";
 }
 
 // Creates config or settings file for localization in the working directory
-createLocalizationConfigFile() {
-  print("🔃 Creating localization configuration file...\n"
+int createLocalizationConfigFile() {
+  print("✳️  Create localization configuration file...\n"
       "🔰 The following configuration will be added to 'l10n.yaml' file:\n"
       "========================================\n"
       "${getLocalizationConfig('[your_arb_file_name]')}"
@@ -65,20 +66,45 @@ createLocalizationConfigFile() {
   if (templateArbFileName != null && templateArbFileName.isNotEmpty) {
     File templateArbFile = returnArbFile(templateArbFileName);
     if (templateArbFile.existsSync() && templateArbFile.path.endsWith('.arb')) {
+      print("🔃 Creating localization configuration file...");
       File configFile = returnFile('l10n.yaml');
       configFile.writeAsStringSync(getLocalizationConfig(templateArbFileName));
       print('✅ Localization config file has been created!');
+      exitCode = 0;
+      return exitCode;
     } else if (!templateArbFile.path.endsWith('.arb')) {
       print('❗ [$templateArbFileName] is invalid arb file!');
+      exitCode = 1;
+      return exitCode;
     } else {
       print(
           "❗ There's no arb file named [$templateArbFileName] in the path: lib/l10n/arb/\n"
           "  Add at least two translation files in the given path.\n");
+      exitCode = 1;
+      return exitCode;
     }
   } else {
     print('❌ Program terminated!\n');
+    exitCode = 1;
+    return exitCode;
   }
 }
+
+// Runs command for generating localization files
+generateLocalizationFiles() {
+  print('🔃 Generating localization files...');
+  ProcessResult processResult =
+      Process.runSync('flutter', ['gen-l10n'], runInShell: true);
+  if (processResult.exitCode == 0) {
+    print('✅ Localization files have been created!\n'
+        '========================================\n');
+  } else {
+    print('🔴 [ERROR]: ${processResult.stderr.toString()}\n'
+        '❌ Program terminated!\n');
+  }
+}
+
+mainFileReplacer() {}
 
 // Gets folder path from the user
 String? getFolderPath() {

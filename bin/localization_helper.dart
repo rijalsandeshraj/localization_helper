@@ -7,12 +7,21 @@ import 'package:localization_helper/utils.dart';
 void main(List<String> arguments) {
   exitCode = 0;
   final parser = ArgParser()
-    ..addOption('init',
-        abbr: 'i',
-        help:
-            'Initializes the program for localization with options as: basic or full',
-        defaultsTo: 'basic',
-        allowed: ['basic', 'full']);
+    ..addOption(
+      'init',
+      abbr: 'i',
+      help:
+          'Initializes the program for localization with options as: basic or full',
+      defaultsTo: 'basic',
+      allowed: ['basic', 'full'],
+      allowedHelp: {
+        'basic':
+            'Executes basic implementation of localization to your Flutter apps',
+        'full':
+            'Executes full implementation of localization to your Flutter apps',
+      },
+    )
+    ..addSeparator(flutterLocalizationHelper);
   try {
     ArgResults argResults = parser.parse(arguments);
     String initValue = argResults['init'];
@@ -36,8 +45,7 @@ void main(List<String> arguments) {
 }
 
 void confirm(String localizationMode) {
-  stdout.write(
-      '========================================\n❔ Initialize the program? [y/n]: ');
+  stdout.write('$flutterLocalizationHelper\n❔ Initialize the program? [y/n]: ');
   String? confirmation = stdin.readLineSync();
   if (confirmation == 'y') {
     Directory currentDirectory = getCurrentDirectory();
@@ -47,7 +55,10 @@ void confirm(String localizationMode) {
       print(
           '🔃 Importing necessary localization library in \'pubspec.yaml\' file...');
       checkPubspecFile(file);
-      createLocalizationConfigFile();
+      int exitCode = createLocalizationConfigFile();
+      if (exitCode == 0) {
+        generateLocalizationFiles();
+      }
     } else {
       print('❗ There is no \'pubspec.yaml\' file in this directory!\n');
     }

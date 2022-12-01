@@ -1,3 +1,6 @@
+String flutterLocalizationHelper =
+    "============ FLUTTER LOCALIZATION HELPER ============";
+
 String modeAdditionalContent =
     "This mode includes: [1] Import of necessary localization library in 'pubspec.yaml' file\n"
     "                    [2] Creation of localization configuration file\n"
