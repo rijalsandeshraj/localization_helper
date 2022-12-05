@@ -28,7 +28,6 @@ checkPubspecFile(File file) {
   String finalContent = newContent;
   if (!newContent.contains(secondExp)) {
     if (newContent.contains('\nflutter:')) {
-      print('if');
       finalContent = newContent.replaceAll(
         RegExp(r'flutter:'),
         'flutter:\n  generate: true',
@@ -64,7 +63,7 @@ int createLocalizationConfigFile() {
       '➡️  Enter the name of your template arb file [with extension, eg \'app_en.arb\']: ');
   String? templateArbFileName = stdin.readLineSync();
   if (templateArbFileName != null && templateArbFileName.isNotEmpty) {
-    File templateArbFile = returnArbFile(templateArbFileName);
+    File templateArbFile = returnFile('lib/l10n/arb/$templateArbFileName');
     if (templateArbFile.existsSync() && templateArbFile.path.endsWith('.arb')) {
       print("🔃 Creating localization configuration file...");
       File configFile = returnFile('l10n.yaml');
@@ -104,7 +103,61 @@ generateLocalizationFiles() {
   }
 }
 
-mainFileReplacer() {}
+int checkMainFile() {
+  exitCode = 0;
+  File mainFile = returnFile('lib/main.dart');
+  if (mainFile.existsSync()) {
+    final String content = mainFile.readAsStringSync();
+    RegExp firstExp = RegExp(
+        r'''return MaterialApp:((.|\r|\n)*)localizationsDelegates:((.|\r|\n)*),$''',
+        multiLine: true);
+    RegExp secondExp = RegExp(
+        r'''return MaterialApp:((.|\r|\n)*)supportedLocales:((.|\r|\n)*),''',
+        multiLine: true);
+    RegExp thirdExp = RegExp(
+        r'''return MaterialApp:((.|\r|\n)*)locale:((.|\r|\n)*),''',
+        multiLine: true);
+    String firstContent = content;
+    if (!content.contains(firstExp)) {
+      if (content.contains(RegExp(r'\r?\n\s*return MaterialApp:'))) {
+        firstContent = content.replaceAll(
+          RegExp(r'\s*return MaterialApp:'),
+          '    return MaterialApp:\n        localizationsDelegates: S.localizationsDelegates,',
+        );
+        return exitCode;
+      } else {
+        print('❗ \'MaterialApp\' is not returned in the file.');
+        exitCode = 1;
+        return exitCode;
+      }
+    }
+    String secondContent = firstContent;
+    if (!firstContent.contains(secondExp)) {
+      if (firstContent.contains(RegExp(r'\r?\n\s*return MaterialApp:'))) {
+        secondContent = firstContent.replaceAll(
+          RegExp(r'flutter:'),
+          'flutter:\n  generate: true',
+        );
+      }
+      return exitCode;
+    }
+    String finalContent = secondContent;
+    if (!secondContent.contains(thirdExp)) {
+      if (secondContent.contains(RegExp(r'\r?\n\s*return MaterialApp:'))) {
+        finalContent = secondContent.replaceAll(
+          RegExp(r'flutter:'),
+          'flutter:\n  generate: true',
+        );
+      }
+    }
+    mainFile.writeAsStringSync(finalContent);
+    return exitCode;
+  } else {
+    print('❗ There is no \'main.dart\' file in the path: \'lib/main.dart\'!\n');
+    exitCode = 1;
+    return exitCode;
+  }
+}
 
 // Gets folder path from the user
 String? getFolderPath() {
@@ -136,17 +189,9 @@ String stringInCamelCase(String lowerCaseString) {
 }
 
 // Returns files in the working directory
-File returnFile(String fileName) {
+File returnFile(String path) {
   Directory currentDirectory = getCurrentDirectory();
-  final String path = currentDirectory.path;
-  final File file = File('$path/$fileName');
-  return file;
-}
-
-// Returns arb file in the path lib/l10n/arb/
-File returnArbFile(String fileName) {
-  Directory currentDirectory = getCurrentDirectory();
-  final String path = currentDirectory.path;
-  final File file = File('$path/lib/l10n/arb/$fileName');
+  final String currentDirPath = currentDirectory.path;
+  final File file = File('$currentDirPath/$path');
   return file;
 }
