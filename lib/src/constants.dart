@@ -9,7 +9,7 @@ String modeAdditionalContent =
 
 String basicModeAdditionalContent =
     "For running program in Full Mode, run following command after terminating this program:\n"
-    "> dart bin/localization_helper.dart -i full\n"
+    "> localization_helper -i full\n"
     "Full Mode includes all features of Basic Mode in addition with:\n"
     "   => Import of localization file in every Dart files containing values of\n"
     "      generated keys of *.arb file and replacement of Text values with translated keys\n";
