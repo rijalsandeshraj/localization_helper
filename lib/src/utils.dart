@@ -1,12 +1,14 @@
 import 'dart:io';
 
+String projectName = '';
+
 // Retrieves the current working directory
 Directory getCurrentDirectory() => Directory.current;
 
 // Gets folder path from the user
 String? getFolderPath() {
   stdout.write(
-      'Enter the path of the folder from where JSON file was extracted (using JSON_CREATOR): ');
+      '➡️  Enter the path of the folder from where JSON file was extracted (using JSON_CREATOR): ');
   String? folderPath = stdin.readLineSync();
   return folderPath;
 }
@@ -19,7 +21,7 @@ checkPubspecFile(File file) {
       r'''dependencies:((.|\r|\n)*)flutter_localizations:''',
       multiLine: true);
   RegExp secondExp =
-      RegExp(r'''(\r?\nflutter:((.|\r|\n)*)generate: true)''', multiLine: true);
+      RegExp(r'''\r?\nflutter:((.|\r|\n)*)generate: true''', multiLine: true);
   String newContent = content;
   File outputFile = returnFile('pubspec.yaml');
   if (!content.contains(firstExp)) {
@@ -37,14 +39,15 @@ checkPubspecFile(File file) {
   if (!newContent.contains(secondExp)) {
     if (newContent.contains(RegExp(r'''\r?\nflutter:'''))) {
       finalContent = newContent.replaceAll(
-        RegExp(r'(?<!.*)flutter:'),
-        'flutter:\n  generate: true',
+        RegExp(r'\r?\nflutter:'),
+        '\nflutter:\n  generate: true',
       );
     } else {
       finalContent = '$finalContent\nflutter:\n  generate: true';
     }
   }
   outputFile.writeAsStringSync(finalContent);
+  projectName = currentProjectName(finalContent);
   print('✅ Flutter localization library has been imported...');
 }
 
@@ -116,9 +119,26 @@ int generateLocalizationFiles() {
   }
 }
 
+// Gets the name of current Flutter project
+String currentProjectName(String pubFileContent) {
+  RegExp nameExp = RegExp(r'''name:\s*.*''');
+  RegExp replaceExp = RegExp(r'''name:\s*''');
+  Iterable<Match> nameMatches = nameExp.allMatches(pubFileContent);
+  if (nameMatches.isNotEmpty) {
+    String nameMatch = nameMatches.first[0]!;
+    String projectName = nameMatch.replaceAll(replaceExp, '').trim();
+    return projectName;
+  } else {
+    List<String> splittedStrings =
+        getCurrentDirectory().path.split(RegExp(r'[/\\]'));
+    String projectName = splittedStrings.last;
+    return projectName;
+  }
+}
+
 // Checks 'main.dart' file in lib directory and adds localizationsDelegates and
 // supportedLocales in MaterialApp
-int checkMainFile() {
+int checkMainFile(String localizationMode) {
   exitCode = 0;
   print('🔃 Checking \'main.dart\' file...');
   File mainFile = returnFile('lib/main.dart');
@@ -136,7 +156,7 @@ int checkMainFile() {
         multiLine: true);
     String firstContent = content;
     if (!content.contains(firstExp)) {
-      if (content.contains(RegExp(r'return MaterialApp\('))) {
+      if (content.contains(RegExp(r'MaterialApp\('))) {
         firstContent = content.replaceAll(
           RegExp(r'MaterialApp\('),
           'MaterialApp(\n        localizationsDelegates: S.localizationsDelegates,',
@@ -147,7 +167,7 @@ int checkMainFile() {
           firstContent = firstContent.replaceAll(
               lastMatch,
               "$lastMatch"
-              "import 'package:localization_helper/l10n/generated/l10n.dart';\n");
+              "import 'package:$projectName/l10n/generated/l10n.dart';\n");
         }
       } else {
         print('❗ \'MaterialApp\' is not returned in the file.');
@@ -157,8 +177,7 @@ int checkMainFile() {
     }
     String secondContent = firstContent;
     if (!firstContent.contains(secondExp)) {
-      print('second');
-      if (firstContent.contains(RegExp(r'\r?\n\s*return MaterialApp\('))) {
+      if (firstContent.contains(RegExp(r'return MaterialApp\('))) {
         secondContent = firstContent.replaceAll(
           RegExp(r'MaterialApp\('),
           'MaterialApp(\n        supportedLocales: S.supportedLocales,',
@@ -167,8 +186,7 @@ int checkMainFile() {
     }
     String finalContent = secondContent;
     if (!secondContent.contains(thirdExp)) {
-      print('third');
-      if (secondContent.contains(RegExp(r'\r?\n\s*return MaterialApp\('))) {
+      if (secondContent.contains(RegExp(r'return MaterialApp\('))) {
         finalContent = secondContent.replaceAll(
           RegExp(r'MaterialApp\('),
           'MaterialApp(\n        locale: S.supportedLocales.first,',
@@ -178,6 +196,9 @@ int checkMainFile() {
     mainFile.writeAsStringSync(finalContent);
     print('✅ Localization file has been imported in \'main.dart\' file!\n'
         '========================================\n');
+    if (localizationMode == 'basic') {
+      print('🟢 Program executed successfully in Basic Mode!');
+    }
     return exitCode;
   } else {
     print('❗ There is no \'main.dart\' file in the path: \'lib/main.dart\'!\n');
@@ -217,6 +238,7 @@ String stringInCamelCase(String lowerCaseString) {
 // Replaces Text widget values with localization callers in every Dart files
 // located inside the path given by the user
 replaceTextValuesWithCallers() {
+  print("✳️  Replace text values with callers in every Dart files...");
   String? jsonCreationPath = getFolderPath();
   if (jsonCreationPath != null && jsonCreationPath.isNotEmpty) {
     Directory dir = Directory(jsonCreationPath);
@@ -240,6 +262,7 @@ replaceTextValuesWithCallers() {
                 multiLine: true);
             RegExp replaceExp = RegExp(r'''(Text(Widget)?|msg)[(:]\r?\n?\s*''',
                 multiLine: true);
+            RegExp constTextExp = RegExp(r'''(const Text)(?=\W)''');
             Iterable<Match> matches = exp.allMatches(content);
             if (matches.isNotEmpty) {
               for (final Match m in matches) {
@@ -258,13 +281,14 @@ replaceTextValuesWithCallers() {
                 content = content.replaceAll(
                     lastMatch,
                     "$lastMatch"
-                    "import 'package:localization_helper/l10n/generated/l10n.dart';\n");
+                    "import 'package:$projectName/l10n/generated/l10n.dart';\n");
               }
-              file.writeAsStringSync(content);
+              file.writeAsStringSync(content.replaceAll(constTextExp, 'Text'));
               print('✅ ${matches.length} MATCHES replaced in: 🔰 ${file.path}');
             }
           }
         }
+        print('\n🟢 Program executed successfully in Full Mode!\n');
       } else {
         print('❗ Directory has no contents!\n');
       }

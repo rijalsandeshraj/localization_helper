@@ -61,7 +61,7 @@ void confirm(String localizationMode) {
       if (exitCode == 0) {
         int exitCode = generateLocalizationFiles();
         if (exitCode == 0) {
-          int exitCode = checkMainFile();
+          int exitCode = checkMainFile(localizationMode);
           if (exitCode == 0 && localizationMode == 'full') {
             replaceTextValuesWithCallers();
           }
