@@ -20,7 +20,7 @@ localization in Flutter apps: Basic Mode and Full Mode.
 4. Addition of localization delegates in MaterialApp of 'main.dart' file
 
 (B) Full Mode includes all features of Basic Mode in addition with:<br>
-=> Import of localization file in every Dart files containing values of<br>
+=> Import of localization file in every Dart files containing values of
 generated keys of \*.arb file and replacement of Text values with translated keys
 
 ## Usage
