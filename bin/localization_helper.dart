@@ -1,8 +1,5 @@
 /// This is command line Dart application that helps in implementing localization in Flutter apps.
 ///
-/// Also, check 'json_creator' for creating a JSON file of Text values and 'json_translator'
-/// for translating the generated file to specific language.
-///
 /// This package intends to help Flutter developers who have already developed
 /// a Flutter app and are looking for localizing the project. This package includes two
 /// modes for implementing localization in Flutter apps: Basic Mode and Full Mode.
@@ -23,8 +20,16 @@
 /// > localization_helper -i full       --- For running the program in Full Mode
 ///
 /// Steps involved while running the program:
-/// 1. Run the program either in Basic or Full Mode
-/// 2. Enter 'y' for initializing the program
+// 1. Run the program in the project directory where localization needs to be implemented
+// 2. Enter 'y' for allowing the program to run
+// 3. The program detects whether the 'pubspec.yaml' file exists and imports necessary localization
+//    library
+// 4. Enter the name of your template *.arb file located at the specified path
+// 5. The program creates a localization configuration file named 'l10n.yaml' in the working directory
+//    and also adds localization delegates in 'main.dart' file
+// 6. When executed in Full Mode, the user needs to provide the path of the directory for replacing
+//    Text values with localization callers in every Dart files from where JSON file was created
+//    (using JSON_CREATOR)
 
 library localization_helper;
 
