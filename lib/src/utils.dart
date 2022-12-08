@@ -258,11 +258,11 @@ replaceTextValuesWithCallers() {
             String content = file.readAsStringSync();
             RegExp importExp = RegExp(r'''import \'.+\r?\n''');
             RegExp exp = RegExp(
-                r'''(Text(Widget)?|msg)[(:]\r?\n?\s*['"]+[!"#%&'*/\\,-.;<>=@\[\]^_`~\w\s\r\n]+[?]?['"]+''',
+                r'''(const )?((Text(Widget)?|msg)[(:]\r?\n?\s*)['"]+[!"#%&'*/\\,-.;<>=@\[\]^_`~\w\s\r\n]+[?]?['"]+''',
                 multiLine: true);
-            RegExp replaceExp = RegExp(r'''(Text(Widget)?|msg)[(:]\r?\n?\s*''',
+            RegExp replaceExp = RegExp(
+                r'''(const )?(Text(Widget)?|msg)[(:]\r?\n?\s*''',
                 multiLine: true);
-            RegExp constTextExp = RegExp(r'''(const Text)(?=\W)''');
             Iterable<Match> matches = exp.allMatches(content);
             if (matches.isNotEmpty) {
               for (final Match m in matches) {
@@ -272,8 +272,13 @@ replaceTextValuesWithCallers() {
                     .replaceAll(RegExp(r'''[^\w\s]'''), ' ')
                     .trim();
                 String matchInCamelCase = stringInCamelCase(matchInLowerCase);
-                content = content.replaceAll(
-                    actualMatch, 'S.of(context).$matchInCamelCase');
+                if (m[1] == 'const ') {
+                  content = content.replaceAll(
+                      m[0]!, '${m[2]}S.of(context).$matchInCamelCase');
+                } else {
+                  content = content.replaceAll(
+                      actualMatch, 'S.of(context).$matchInCamelCase');
+                }
               }
               Iterable<Match> importMatches = importExp.allMatches(content);
               if (importMatches.isNotEmpty) {
@@ -283,12 +288,13 @@ replaceTextValuesWithCallers() {
                     "$lastMatch"
                     "import 'package:$projectName/l10n/generated/l10n.dart';\n");
               }
-              file.writeAsStringSync(content.replaceAll(constTextExp, 'Text'));
+              file.writeAsStringSync(content);
               print('✅ ${matches.length} MATCHES replaced in: 🔰 ${file.path}');
             }
           }
         }
-        print('\n🟢 Program executed successfully in Full Mode!\n');
+        print('========================================\n'
+            '\n🟢 Program executed successfully in Full Mode!\n');
       } else {
         print('❗ Directory has no contents!\n');
       }
