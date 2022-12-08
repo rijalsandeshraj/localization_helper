@@ -4,8 +4,8 @@ This is command line Dart application that helps in implementing localization in
 
 [**NOTE**]: You may find ['json_creator'](https://pub.dev/packages/json_creator) and
 ['json_translator'](https://pub.dev/packages/json_translator) packages on [pub.dev](https://pub.dev) helpful
-if you are doing localization of prebuilt Flutter apps.
-https://pub.dev/packages/json_creator
+if you are doing localization of prebuilt Flutter apps.<br>
+https://pub.dev/packages/json_creator<br>
 https://pub.dev/packages/json_translator
 
 This package intends to help Flutter developers who have already developed a Flutter app and
@@ -13,13 +13,14 @@ are looking for localizing the project. This package includes two modes for impl
 localization in Flutter apps: Basic Mode and Full Mode.
 
 (A) Basic Mode includes:
-[1] Import of necessary localization library in 'pubspec.yaml' file
-[2] Creation of localization configuration file
-[3] Running command for generation of localization files
-[4] Addition of localization delegates in MaterialApp of 'main.dart' file
 
-(B) Full Mode includes all features of Basic Mode in addition with:
-=> Import of localization file in every Dart files containing values of
+1. Import of necessary localization library in 'pubspec.yaml' file
+2. Creation of localization configuration file
+3. Running command for generation of localization files
+4. Addition of localization delegates in MaterialApp of 'main.dart' file
+
+(B) Full Mode includes all features of Basic Mode in addition with:<br>
+=> Import of localization file in every Dart files containing values of<br>
 generated keys of \*.arb file and replacement of Text values with translated keys
 
 ## Usage
