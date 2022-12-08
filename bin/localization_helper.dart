@@ -1,4 +1,4 @@
-/// This is command line Dart application that helps in implementing localization in Flutter apps.
+/// This is a command line Dart application that helps in implementing localization in Flutter apps.
 ///
 /// This package intends to help Flutter developers who have already developed
 /// a Flutter app and are looking for localizing the project. This package includes two

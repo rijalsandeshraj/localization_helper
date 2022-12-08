@@ -1,6 +1,6 @@
 # LOCALIZATION_HELPER for Flutter Apps Localization
 
-This is command line Dart application that helps in implementing localization in Flutter apps.
+This is a command line Dart application that helps in implementing localization in Flutter apps.
 
 [**NOTE**]: You may find ['json_creator'](https://pub.dev/packages/json_creator) and
 ['json_translator'](https://pub.dev/packages/json_translator) packages on [pub.dev](https://pub.dev) helpful
